@@ -69,17 +69,14 @@ public class Credit_calculator implements EntryPoint {
 		dialogVPanel.add(closeButton);
 		dialogBox.setWidget(dialogVPanel);
 
-		// Add a handler to close the DialogBox
-		closeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
-			}
-		});
-
 		// Create a handler for the sendButton and nameField
 		class MyHandler implements ClickHandler, KeyUpHandler {
+			private double lastInitialPrincipal;
+			private double lastMonthlyPayment;
+			private RateMonths lastRateMonths;
+			private double lastInterestPaid;
+			
+			
 			/**
 			 * Fired when the user clicks on the sendButton.
 			 */
@@ -94,6 +91,22 @@ public class Credit_calculator implements EntryPoint {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					sendNameToServer();
 				}
+			}
+			
+			public double getLastInitialPrincipal() {
+				return lastInitialPrincipal;
+			}
+			
+			public double getLastMonthlyPayment() {
+				return lastMonthlyPayment;
+			}
+			
+			public RateMonths getLastRateMonths() {
+				return lastRateMonths;
+			}
+			
+			public double getLastInterestPaid() {
+				return lastInterestPaid;
 			}
 
 			/**
@@ -115,9 +128,11 @@ public class Credit_calculator implements EntryPoint {
 				serverResponseLabel.setText("");
 				
 				List<RateMonths> rateMonthsList = new ArrayList<RateMonths>();
-				rateMonthsList.add(new RateMonths(interestRate, 24, 1));
+				RateMonths rateMonths = new RateMonths(interestRate, 24, 1);
+				rateMonthsList.add(rateMonths);
 				InterestCalculator interestCalculator = new InterestCalculator(initialPrincipal, monthlyPayment, rateMonthsList);
-				final String response = interestCalculator.calculate();
+				double interestPaid = interestCalculator.calculate();
+				final String response = "Interest charged: " + interestPaid;
 				
 				dialogBox.setText("Result Box");
 				serverResponseLabel
@@ -125,12 +140,35 @@ public class Credit_calculator implements EntryPoint {
 				serverResponseLabel.setHTML(response);
 				dialogBox.center();
 				closeButton.setFocus(true);
+				
+				lastInitialPrincipal = initialPrincipal;
+				lastMonthlyPayment = monthlyPayment;
+				lastRateMonths = rateMonths;
+				lastInterestPaid = interestPaid;
 			}
 		}
 
 		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
+		final MyHandler handler = new MyHandler();
 		sendButton.addClickHandler(handler);
 		initialPrincipalField.addKeyUpHandler(handler);
+		
+		// Add a handler to close the DialogBox
+		closeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				dialogBox.hide();
+				sendButton.setEnabled(true);
+				sendButton.setFocus(true);
+				
+				RootPanel.get("lastInitialPrincipalFieldContainer").add(new Label("" + handler.getLastInitialPrincipal()));
+				RootPanel.get("lastMonthlyPaymentFieldContainer").add(new Label("" + handler.getLastMonthlyPayment()));
+				RootPanel.get("lastInterestRateFieldContainer").add(new Label("" + handler.getLastRateMonths().getPercentInterestRate()));
+				RootPanel.get("lastInterestPaidFieldContainer").add(new Label("" + handler.getLastInterestPaid()));
+				RootPanel previousCalculationTable = RootPanel.get("previousCalculationTable");
+				if(!previousCalculationTable.isVisible()) {
+					previousCalculationTable.setVisible(true);
+				}
+			}
+		});
 	}
 }

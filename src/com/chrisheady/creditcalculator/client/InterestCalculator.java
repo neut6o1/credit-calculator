@@ -19,7 +19,7 @@ public class InterestCalculator {
 		this.rateMonthsList = rateMonthsList;
 	}
 	
-	public String calculate() {
+	public double calculate() {
 		int totalMonths = 0;
 		double totalInterestCharged = 0;
 		
@@ -48,8 +48,8 @@ public class InterestCalculator {
 		
 		System.out.println("Total Months: " + totalMonths);
 		System.out.println("Money left to pay off: " + principal);
-		String interestCharged = "Interest charged: " + totalInterestCharged;
-		System.out.println(interestCharged);
+		double interestCharged = totalInterestCharged;
+		System.out.println("Interest charged: " + interestCharged);
 		return interestCharged;
 	}
 }
