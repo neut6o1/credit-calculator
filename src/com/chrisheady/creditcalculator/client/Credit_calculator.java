@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Credit_calculator implements EntryPoint {
+	List<Results> results = new ArrayList<Results>();
 
 	/**
 	 * This is the entry point method.
@@ -55,6 +56,7 @@ public class Credit_calculator implements EntryPoint {
 		dialogBox.setText("Interest Calculator");
 		dialogBox.setAnimationEnabled(true);
 		final Button closeButton = new Button("Close");
+		
 		// We can set the id of a widget by accessing its Element
 		closeButton.getElement().setId("closeButton");
 		final Label textToServerLabel = new Label();
@@ -71,17 +73,11 @@ public class Credit_calculator implements EntryPoint {
 
 		// Create a handler for the sendButton and nameField
 		class MyHandler implements ClickHandler, KeyUpHandler {
-			private double lastInitialPrincipal;
-			private double lastMonthlyPayment;
-			private RateMonths lastRateMonths;
-			private double lastInterestPaid;
-			
-			
 			/**
 			 * Fired when the user clicks on the sendButton.
 			 */
 			public void onClick(ClickEvent event) {
-				sendNameToServer();
+				displayResults();
 			}
 
 			/**
@@ -89,30 +85,14 @@ public class Credit_calculator implements EntryPoint {
 			 */
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					sendNameToServer();
+					displayResults();
 				}
-			}
-			
-			public double getLastInitialPrincipal() {
-				return lastInitialPrincipal;
-			}
-			
-			public double getLastMonthlyPayment() {
-				return lastMonthlyPayment;
-			}
-			
-			public RateMonths getLastRateMonths() {
-				return lastRateMonths;
-			}
-			
-			public double getLastInterestPaid() {
-				return lastInterestPaid;
 			}
 
 			/**
 			 * Send the name from the nameField to the server and wait for a response.
 			 */
-			private void sendNameToServer() {
+			private void displayResults() {
 				// First, we validate the input.
 				errorLabel.setText("");
 				String initialPrincipalString = initialPrincipalField.getText();
@@ -141,10 +121,8 @@ public class Credit_calculator implements EntryPoint {
 				dialogBox.center();
 				closeButton.setFocus(true);
 				
-				lastInitialPrincipal = initialPrincipal;
-				lastMonthlyPayment = monthlyPayment;
-				lastRateMonths = rateMonths;
-				lastInterestPaid = interestPaid;
+				results.add(0, new Results(initialPrincipal, monthlyPayment, 
+						rateMonths.getPercentInterestRate(), interestPaid));
 			}
 		}
 
@@ -160,10 +138,17 @@ public class Credit_calculator implements EntryPoint {
 				sendButton.setEnabled(true);
 				sendButton.setFocus(true);
 				
-				RootPanel.get("lastInitialPrincipalFieldContainer").add(new Label("" + handler.getLastInitialPrincipal()));
-				RootPanel.get("lastMonthlyPaymentFieldContainer").add(new Label("" + handler.getLastMonthlyPayment()));
-				RootPanel.get("lastInterestRateFieldContainer").add(new Label("" + handler.getLastRateMonths().getPercentInterestRate()));
-				RootPanel.get("lastInterestPaidFieldContainer").add(new Label("" + handler.getLastInterestPaid()));
+				RootPanel.get("lastInitialPrincipalFieldContainer").clear();
+				RootPanel.get("lastMonthlyPaymentFieldContainer").clear();
+				RootPanel.get("lastInterestRateFieldContainer").clear();
+				RootPanel.get("lastInterestPaidFieldContainer").clear();
+				
+				for(Results nextResult: results) {
+					RootPanel.get("lastInitialPrincipalFieldContainer").add(new Label("" + nextResult.getInitialPrincipal()));
+					RootPanel.get("lastMonthlyPaymentFieldContainer").add(new Label("" + nextResult.getMonthlyPayment()));
+					RootPanel.get("lastInterestRateFieldContainer").add(new Label("" + nextResult.getInterestRate()));
+					RootPanel.get("lastInterestPaidFieldContainer").add(new Label("" + nextResult.getInterestPaid()));
+				}
 				RootPanel previousCalculationTable = RootPanel.get("previousCalculationTable");
 				if(!previousCalculationTable.isVisible()) {
 					previousCalculationTable.setVisible(true);
