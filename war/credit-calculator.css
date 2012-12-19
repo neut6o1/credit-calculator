@@ -17,15 +17,15 @@ h1 {
 
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
-  width: 400px;
 }
 
 .dialogVPanel {
   margin: 5px;
 }
 
-.serverResponseLabelError {
+.errorLabelContainer {
   color: red;
+  font-weight: bold; 
 }
 
 /** Set ids using widget.getElement().setId("idOfElement") */

@@ -4,7 +4,7 @@
   
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>Credit_calculator.html</welcome-file>
+    <welcome-file>credit-calculator.html</welcome-file>
   </welcome-file-list>
 
   <servlet>

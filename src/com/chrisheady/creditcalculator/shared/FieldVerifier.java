@@ -39,4 +39,13 @@ public class FieldVerifier {
 		}
 		return name.length() > 3;
 	}
+	
+	public static boolean isValidDouble(String potentialDouble) {
+		try {
+			Double.parseDouble(potentialDouble);
+			return true;
+		} catch(Exception e) {
+			return false;
+		}
+	}
 }
